@@ -1,50 +1,504 @@
 <!doctype html>
 <html>
-	<head>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-		<title>reveal.js</title>
+    <title>reveal.js</title>
 
-		<link rel="stylesheet" href="css/reveal.css">
-		<link rel="stylesheet" href="css/theme/black.css">
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet" href="css/theme/black.css">
 
-		<!-- Theme used for syntax highlighting of code -->
-		<link rel="stylesheet" href="lib/css/zenburn.css">
+    <!-- Theme used for syntax highlighting of code -->
+    <link rel="stylesheet" href="lib/css/zenburn.css">
 
-		<!-- Printing and PDF exports -->
-		<script>
-			var link = document.createElement( 'link' );
-			link.rel = 'stylesheet';
-			link.type = 'text/css';
-			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
-			document.getElementsByTagName( 'head' )[0].appendChild( link );
-		</script>
-	</head>
-	<body>
-		<div class="reveal">
-			<div class="slides">
-				<section>Slide 1</section>
-				<section>Slide 2</section>
-			</div>
-		</div>
+    <!-- Printing and PDF exports -->
+    <script>
+     var link = document.createElement( 'link' );
+     link.rel = 'stylesheet';
+     link.type = 'text/css';
+     link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+     document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+	<section>
+          <h1>Ember Best Practices</h1>
+          <p>Testing</p>
+        </section>
+	<section>
+          <h2>Reach Out!</h2>
+          <p>EmberJS Purecloud Group</p>
+          <img src="http://emberjs.com/images/tomsters/officehours.png">
+        </section>
+        <section>
+          <h2>Types of Tests in Ember</h2>
+          <p class="fragment">Unit Tests</p>
+          <p class="fragment">Component Integration Tests</p>
+          <p class="fragment">Acceptnace Tests</p>
+        </section>
+        <section>
+          <h2>The Ideal</h2>
+          <img src="images/idealautomatedtestingpyramid.png" height="400px"/>
+        </section>
+        <section>
+          <h2>The Ideal for Web Directory</h2>
+          <img alt="" src="images/inin-ember-test-pyramid.png" height="400px"/>
+        </section>
+        <section>
+          <h2>Unit Tests</h2>
+        </section>
+        <section data-markdown>
+          <script type="text/template">
+            ## What You Get
+            * `this.subject()` gives you an instance of the CUT
+            * Provide attributes/collaborators through `this.subject({...})`
+            * `this.$()` gives you a reference to the component element
+            * `this.render()` or `this.$()` renders the template
+            * `didInsertElement` and `willDestroyElement` hooks called
+          </script>
+        </section>
+        <section data-markdown>
+          <script type="text/template">
+            ## What You Don't get
+            * The run loop
+            * Full Container functionality
+            * component lifecycle hooks
+          </script>
+        </section>
+        <section>
+          <h2>Run Loop?</h2>
+          <p>Ember uses its run loop (backburner) to schedule work async, so that the browser doesn't hang up</p>
+          <a href="https://guides.emberjs.com/v2.7.0/applications/run-loop/">https://guides.emberjs.com/v2.7.0/applications/run-loop/</a>
+          <a href="http://stackoverflow.com/questions/13597869/what-is-ember-runloop-and-how-does-it-work">http://stackoverflow.com/questions/13597869/what-is-ember-runloop-and-how-does-it-work</a>
+          <p>functions that are async need to be wrapped in an Ember.run</p>
+          <p>Common case is the set function</p>
+        </section>
+        <section>
+          <h2>Container?</h2>
+          <p>The container is the magic ember uses to make its convention over config happen</p>
+          <a href="https://guides.emberjs.com/v2.7.0/applications/dependency-injection/">https://guides.emberjs.com/v2.7.0/applications/dependency-injection/</a>
+          <p>Mind your needs! - all collaborators need to be needed</p>
+        </section>
+        <section>
+          <h2>Fakes</h2>
+            <p class="fragment">Stubs - hard coded return values</p>
+            <p class="fragment">Spies - call the real impls, but can assert on how</p>
+            <p class="fragment">Mocks - Can set up return values and assert on how</p>
+        </section>
+        <section>
+          <h2>Implementing Fakes</h2>
+          <p class="fragment">These are easy to code yourself for simple cases</p>
+          <p class="fragment">For advanced usage take a look at ember sinon</p>
+          <a class="fragment" href="https://github.com/csantero/ember-sinon">https://github.com/csantero/ember-sinon</a>
+        </section>
+        <section>
+          <h2>Use moduleForModel To test Ember Data Logic</h2>
+          <p>Gives you access to the store object via "this.store"</p>
+          <p>Great for testing computeds and integration of serializer/adapter customization</p>
+        </section>
+        <section>
+          <h2>Stubbing HTTP Responses</h2>
+          <p class="fragment">Mockjax <a href="https://github.com/jakerella/jquery-mockjax">https://github.com/jakerella/jquery-mockjax</a></p>
+          <p class="fragment">overrides jquery ajax</p>
+          <p class="fragment">Pretender <a href="https://github.com/pretenderjs/pretender">https://github.com/pretenderjs/pretender</a></p>
+          <p class="fragment">overrides XMLHTTPRequest</p>
+          <p class="fragment">Prefer Pretender</p>
+        </section>
+        <section>
+          <h2>Model Test with HTTP Stubbing</h2>
+          <pre><code class="hljs" data-trim="" contenteditable="">
+import { test, moduleForModel } from 'ember-qunit';
 
-		<script src="lib/js/head.min.js"></script>
-		<script src="js/reveal.js"></script>
+moduleForModel('chat-search-result', 'Unit | Model | Chat Search Result', {
+    needs: [
+        'model:chat-search-result',
+        'adapter:chat-search-result',
+        'component:emoji-dom',
+        'serializer:chat-search-result',
+        'service:application',
+        'service:intl',
+        'service:ajax',
+        'service:preferences',
+        'service:session',
+        'service:chat'
+    ]
+});
 
-		<script>
-			// More info https://github.com/hakimel/reveal.js#configuration
-			Reveal.initialize({
-				history: true,
+const sampleResults = {
+    count: 2,
+    limit: 10,
+    offset: 10,
+    ms: 10000,
+    ts: 10000,
+    entities: [
+        {
+            id: '1',
+            chat: 'aaaa',
+            body: 'hello',
+            createdDate: '99999',
+            from: {
+                jid: 'abcd',
+                name: 'larry'
+            },
+            to: {
+                jid: 'xyz',
+                name: 'moe'
+            }
+        }, {
+            id: '2',
+            chat: 'bbbbb',
+            body: 'world',
+            createdDate: '1111111',
+            from: {
+                jid: 'xyz',
+                name: 'moe'
+            },
+            to: {
+                jid: 'abcd',
+                name: 'larry'
+            }
+        }
+    ]
+};
 
-				// More info https://github.com/hakimel/reveal.js#dependencies
-				dependencies: [
-					{ src: 'plugin/markdown/marked.js' },
-					{ src: 'plugin/markdown/markdown.js' },
-					{ src: 'plugin/notes/notes.js', async: true },
-					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
-				]
-			});
-		</script>
-	</body>
+test('it should populate model with search results', function (assert) {
+    $.mockjax({
+        url: '/platform/api/v1/search/chats/',
+        content: 'application/json',
+        status: 200,
+        responseText: sampleResults,
+        type: 'POST'
+    });
+    const resultPromise = this.store().query('chat-search-result', {
+        query: '*',
+        targetJids: ['roomJid']
+    });
+    return resultPromise.then((results) => {
+        const searchResults = results.get('content').mapBy('record');
+        assert.equal(searchResults[0].get('body'), sampleResults.entities[0].body, 'should retrieve body for first chat');
+        assert.equal(searchResults[1].get('body'), sampleResults.entities[1].body, 'should retrieve body for second chat');
+        return assert.equal(searchResults[0].get('from.name'), sampleResults.entities[0].from.name, 'should retrieve from name for first chat');
+    });
+});
+          </code></pre>
+        </section>
+        <section>
+          <h2>Unit testing everything else</h2>
+          <p>use "moduleFor" to test ember objects</p>
+          <ul>
+            <li>Services</li>
+            <li>Helpers</li>
+            <li>Routes</li>
+            <li>Utils</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Service Unit Test</h2>
+          <pre>
+            <code class="hljs" data-trim contenteditable>
+import { moduleFor, test } from 'ember-qunit';
+import Ember from 'ember';
+
+const DUMMY_ELEMENT = {};
+
+let MapUtilStub = Ember.Object.extend({
+  createMap(element, location) {
+    this.assert.ok(element, 'createMap called with element');
+    this.assert.ok(location, 'createMap called with location');
+    return DUMMY_ELEMENT;
+  }
+});
+
+moduleFor('service:maps', 'Unit | Service | maps', {
+  needs: ['util:google-maps']
+});
+
+test('should create a new map if one isnt cached for location', function (assert) {
+  assert.expect(4);
+  let stubMapUtil = MapUtilStub.create({ assert });
+  let mapService = this.subject({ mapUtil: stubMapUtil });
+  let element = mapService.getMapElement('San Francisco');
+  assert.ok(element, 'element exists');
+  assert.equal(element.className, 'map', 'element has class name of map');
+});
+
+test('should use existing map if one is cached for location', function (assert) {
+  assert.expect(1);
+  let stubCachedMaps = Ember.Object.create({
+    sanFrancisco: DUMMY_ELEMENT
+  });
+  let mapService = this.subject({ cachedMaps: stubCachedMaps });
+  let element = mapService.getMapElement('San Francisco');
+  assert.equal(element, DUMMY_ELEMENT, 'element fetched from cache');
+});
+
+            </code>
+          </pre>
+        </section>
+        <section>
+          <h2>Testing Asynchronously</h2>
+          <p class="fragment">When the test depends on the completion RSVP Promise, return the Promise and the test will wait for it </p>
+          <p class="fragment">When you need to wait on a callback use assert.async</p>
+        </section>
+        <section>
+          <h2>Component Integration Tests</h2>
+        </section>
+        <section data-markdown>
+          <script type="text/template">
+            ## What you get
+            * Container/registry implementation (collaborators loaded)
+            * Define your components via handlebars
+            * `this` as an outer context
+            * full component lifecycle
+          </script>
+        </section>
+        <section>
+          <h2>What you don't get</h2>
+          <p>Access to the component instance</p>
+          <p>Asserts are mostly run against the DOM</p>
+        </section>
+        <section>
+          <h2>Providing data and actions</h2>
+          <pre><code class="hljs" data-trim contenteditable>
+import { moduleForComponent, test } from 'ember-qunit';
+import hbs from 'htmlbars-inline-precompile';
+import RSVP from 'rsvp';
+import wait from 'ember-test-helpers/wait';
+
+
+moduleForComponent('list-filter', 'Integration | Component | list filter', {
+  integration: true
+});
+
+const ITEMS = [{city: 'San Francisco'},
+               {city: 'Portland'},
+               {city: 'Seattle'}];
+
+test('should initially load all listings', function (assert) {
+  assert.expect(3);
+  this.on('filterByCity', (val) => {
+    assert.equal(val, '');
+    return RSVP.resolve(ITEMS);
+  });
+
+  this.render(hbs`
+    {{#list-filter filter=(action 'filterByCity') as |rentals|}}
+            <ul>
+              {{#each rentals as |item|}}
+              <li class="city">
+                {{item.city}}
+              </li>
+              {{/each}}
+            </ul>
+    {{/list-filter}}
+  `);
+
+  return wait().then(() => {
+    assert.equal(this.$('.city').length, 3);
+    assert.equal(this.$('.city').first().text().trim(), 'San Francisco');
+  });
+});
+
+          </code></pre>
+        </section>
+        <section>
+          <h2>Stubbing Services</h2>
+          <pre>
+            <code class="hljs" data-trim contenteditable>
+import { moduleForComponent, test } from 'ember-qunit';
+import hbs from 'htmlbars-inline-precompile';
+import Ember from 'ember';
+
+let StubMapsService = Ember.Service.extend({
+
+  getMapElement(location) {
+    this.set('calledWithLocation', location);
+    return document.createElement('div');
+  }
+});
+
+moduleForComponent('location-map', 'Integration | Component | location map', {
+  integration: true,
+  beforeEach() {
+    this.register('service:maps', StubMapsService);
+    this.inject.service('maps', { as: 'mapsService' });
+  }
+});
+
+test('should append map element to container element', function(assert) {
+  this.set('myLocation', 'New York');
+  this.render(hbs`{{location-map location=myLocation}}`);
+  assert.equal(this.$('.map-container').children().length, 1, 'container should have one child');
+  assert.equal(this.get('mapsService.calledWithLocation'), 'New York', 'should call service with New York');
+});
+            </code>
+          </pre>
+        </section>
+        <section>
+          <h2>Acceptance Tests</h2>
+        </section>
+        <section data-markdown>
+          <script type="text/template">
+            ## Out of the box helpers
+            * Sync - `currentRoute`, `currentRouteName`, `currentURL`, `find`
+            * Async - `click`, `fillIn`, `keyEvent`, `triggerEvent`, `visit`
+            * https://guides.emberjs.com/v2.7.0/testing/acceptance/
+          </script>
+        </section>
+        <section>
+          <h2>Custom Helpers!</h2>
+          <p>
+            ember g test-helper <i>name</i>
+          </p>
+        </section>
+        <section>
+          <h2>Fake the Server with Mirage</h2>
+          <p>Uses pretender under the covers</p>
+          <p>maintains a complete server/orm on the client</p>
+          <p><a href="http://www.ember-cli-mirage.com/">http://www.ember-cli-mirage.com/</a></p>
+          <p><a href="http://ember-cli-page-object.js.org/docs/v1.5.x/">http://ember-cli-page-object.js.org/docs/v1.5.x/</a></p>
+        </section>
+        <section>
+          <h2>Sample Acceptance Suite</h2>
+          <pre>
+            <code class="hljs" data-trim contenteditable>
+import { test } from 'qunit';
+import moduleForAcceptance from 'super-rentals/tests/helpers/module-for-acceptance';
+import Ember from 'ember';
+
+let StubMapsService = Ember.Service.extend({
+  getMapElement() {
+    return document.createElement('div');
+  }
+});
+
+moduleForAcceptance('Acceptance | list rentals', {
+  beforeEach() {
+    this.application.register('service:mockMaps', StubMapsService);
+    this.application.inject('component:location-map', 'maps', 'service:mockMaps');
+  }
+});
+
+test('should redirect to rentals route', function (assert) {
+  visit('/');
+  andThen(function() {
+    assert.equal(currentURL(), '/rentals', 'should redirect automatically');
+  });
+});
+
+
+test('should link to about page', function (assert) {
+  visit('/');
+  click('a:contains("About")');
+  andThen(function () {
+    assert.equal(currentURL(), '/about', 'should navigate to about');
+  });
+});
+
+test('should link to contacts page', function (assert) {
+  visit('/');
+  click('a:contains("Contact")');
+  andThen(function () {
+    assert.equal(currentURL(), '/contact', 'should navigate to contact');
+  });
+});
+
+test('should initially list 3 rentals', function (assert) {
+  visit('/');
+  andThen(function () {
+    assert.equal(find('.results .listing').length, 3, 'should display 3 listings');
+  });
+});
+
+test('should list 1 rental when filtering by Seattle', function (assert) {
+  visit('/');
+  fillIn('.list-filter input', 'seattle');
+  keyEvent('.list-filter input', 'keyup', 69);
+  andThen(function () {
+    assert.equal(find('.results .listing').length, 1, 'should display 1 listing');
+    assert.equal(find('.listing .location:contains("Seattle")').length, 1, 'should contain 1 listing with location Seattle');
+  });
+});
+
+test('should show details for a specific rental', function (assert) {
+  visit('/rentals');
+  click('a:contains("Grand Old Mansion")');
+  andThen(function() {
+    assert.equal(currentURL(), '/rentals/grand-old-mansion', "should navigate to show route");
+    assert.equal(find('.show-listing h2').text(), "Grand Old Mansion", 'should list rental title');
+    assert.equal(find('.description').length, 1, 'should list a description of the property');
+  });
+});
+
+            </code>
+          </pre>
+        </section>
+        <section>
+          <h2>Acceptance Testing is a WIP for Web Directory</h2>
+          <p>Setting up Mirage for HTTP Faking</p>
+          <p>Faking Authentication</p>
+          <p>Cleaning up between tests</p>
+          <p>web sockets?</p>
+        </section>
+        <section>
+          <h2>Debugging</h2>
+          <ul>
+            <li><p>Stack Traces on Chrome or in console</p></li>
+            <li><p>Setting async stacks on dev tools</p></li>
+            <li><p>set on destroyed object(not tearing something down)</p></li>
+            <li><p>run loop (wrap in run)</p></li>
+            <li><p>Missing needs</p></li>
+            <li><p>pauseTest to freeze execution to play with screen on browser</p></li>
+            <li><p>debugger to set breakpoint at line</p></li>
+          </ul>
+        </section>
+        <section>
+          <h2>Avoiding Brittle Tests</h2>
+          <ul>
+            <li>Test Outcomes, not Internals</li>
+            <li>Use Pure Functions Where You Can</li>
+            <li>Keep Collaborators to a Minimum</li>
+            <li>Law of Demeter</li>
+            <li>Don't Test the Framework, Its already Tested</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Workflow Tips</h2>
+          <ul>
+            <li>Make a list of test skeletons as a todo list</li>
+            <li>Tests are much harder to write after the fact</li>
+            <li>write them early to avoid the feeling of reverse engineering your code</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Links</h2>
+          <a href="https://github.com/rwjblue/ember-qunit">https://github.com/rwjblue/ember-qunit</a>
+          <a href="https://guides.emberjs.com/v2.7.0/testing/">https://guides.emberjs.com/v2.7.0/testing/</a>
+          <a href="https://eev.ee/blog/2016/08/22/testing-for-people-who-hate-testing/">https://eev.ee/blog/2016/08/22/testing-for-people-who-hate-testing/</a>
+          <a href="https://github.com/emberjs/rfcs/pull/119">https://github.com/emberjs/rfcs/pull/119</a>
+        </section>
+      </div>
+    </div>
+
+    <script src="lib/js/head.min.js"></script>
+    <script src="js/reveal.js"></script>
+
+    <script>
+     // More info https://github.com/hakimel/reveal.js#configuration
+     Reveal.initialize({
+       history: true,
+
+       // More info https://github.com/hakimel/reveal.js#dependencies
+       dependencies: [
+	 { src: 'plugin/markdown/marked.js' },
+	 { src: 'plugin/markdown/markdown.js' },
+	 { src: 'plugin/notes/notes.js', async: true },
+	 { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+       ]
+     });
+    </script>
+  </body>
 </html>
